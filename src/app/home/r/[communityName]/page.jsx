@@ -4,7 +4,7 @@ import React, { useEffect } from 'react'
 import { MdOutlineModeEdit } from "react-icons/md";
 import { IoAddSharp } from "react-icons/io5";
 import { useSearchParams } from 'next/navigation';
-import FormData from 'form-data';
+// REMOVE THIS LINE: import FormData from 'form-data'; // This is for Node.js environments
 import axios from 'axios';
 import UploadImage from '@/app/(components)/UploadImage';
 import Link from 'next/link';
@@ -23,11 +23,13 @@ function page({ params }) {
     createdAt: '',
     updatedAt: ''
   })
+
   async function updateImage(e) {
     e.preventDefault()
     try {
       setCommunityLoader(true)
-      let formData = new FormData()
+      // Use the native browser FormData API directly
+      let formData = new window.FormData(); // Or just `new FormData();` if not concerned about global scope
       formData.append('id', searchParams.get("id"))
       console.log(searchParams.get("id"))
       formData.append('communityImage', communityImage)
@@ -35,10 +37,13 @@ function page({ params }) {
       if (response.data.success) {
         setCommunityLoader(false)
         setUploadImage(false)
+        // Optionally, re-fetch community details to update the image on the page
+        fetchCommunityDetails();
       }
       console.log(response.data)
       setCommunityLoader(false)
     } catch (error) {
+      console.error("Error updating image:", error); // Use console.error for errors
       setCommunityLoader(false)
     }
   }
@@ -50,7 +55,7 @@ function page({ params }) {
         setCommunity(response.data.community);
       }
     } catch (error) {
-      console.log(error)
+      console.error("Error fetching community details:", error); // Use console.error for errors
     }
   }
 
@@ -61,14 +66,15 @@ function page({ params }) {
         setPosts(response.data.posts)
       }
     } catch (error) {
-      console.log(error)
+      console.error("Error fetching community posts:", error); // Use console.error for errors
     }
   }
 
   useEffect(() => {
     fetchCommunityDetails()
     fetchCommunityPosts()
-  }, [])
+  }, [searchParams]) // Add searchParams to dependency array if id can change, or make sure it only runs once per ID
+
   return (
     <div className='md:max-w-[60%] lg:max-w-[80%] xl:max-w-[70%] w-full m-auto md:p-4 rounded-lg lg:shadow-md'>
       {
@@ -79,8 +85,9 @@ function page({ params }) {
         <div className='flex items-center justify-between py-2 sm:p-2'>
           <div className='flex items-center gap-3 sm:gap-6'>
             <div onClick={() => setUploadImage(true)}>
+              {/* Ensure community.imageUrl is a valid URL or provide a fallback default image */}
               <img
-                src={community.imageUrl || null}
+                src={community.imageUrl || '/images/default-community.png'} // Added a default image fallback
                 alt={community.name}
                 className='w-[65px] sm:w-[80px] h-[65px] sm:h-[80px] rounded-full cursor-pointer border-2 border-gray-300'
               />
@@ -102,19 +109,20 @@ function page({ params }) {
         </div>
         <hr className='my-3' />
         {
-          posts.length != 0 &&
-          posts.map((post) => {
-            return (
-              <>
+          posts.length > 0 ? ( // Use ternary for conditional rendering
+            posts.map((post) => (
+              <React.Fragment key={post._id}> {/* Use key for list items, React.Fragment for multiple children */}
                 <CommunityPost post={post} />
                 <hr className='my-2' />
-              </>
-            )
-          })
+              </React.Fragment>
+            ))
+          ) : (
+            <p className='text-center text-gray-500 mt-4'>No posts found in this community yet.</p>
+          )
         }
       </div>
     </div>
   )
 }
 
-export default page
+export default page;
