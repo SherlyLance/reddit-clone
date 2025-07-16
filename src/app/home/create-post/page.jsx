@@ -4,7 +4,7 @@ import axios from 'axios'
 import Suggestions from '@/app/(components)/Suggestions'
 import UploadPostData from '@/app/(components)/UploadPostData'
 
-function page() {
+function Page() { // Renamed 'page' to 'Page' for consistency
   const [suggestions, setSuggestions] = React.useState([])
   const [selectedValue, setSelectedValue] = React.useState({
     value: "",
@@ -31,4 +31,4 @@ function page() {
   )
 }
 
-export default page
+export default Page
