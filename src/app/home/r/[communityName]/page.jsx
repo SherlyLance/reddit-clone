@@ -87,7 +87,7 @@ function page({ params }) {
             <div onClick={() => setUploadImage(true)}>
               {/* Ensure community.imageUrl is a valid URL or provide a fallback default image */}
               <img
-                src={community.imageUrl || '/images/default-community.png'} // Added a default image fallback
+                src={community.imageUrl || '/images/community.png'} // Added a default image fallback
                 alt={community.name}
                 className='w-[65px] sm:w-[80px] h-[65px] sm:h-[80px] rounded-full cursor-pointer border-2 border-gray-300'
               />
